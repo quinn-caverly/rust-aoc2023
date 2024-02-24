@@ -1,13 +1,13 @@
 pub mod mylib {
     use core::panic;
 
-    const num_strs: [&str; 9] = [
+    const NUM_STRS: [&str; 9] = [
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
 
     pub fn find_val_of_num_substr(x: &str) -> Option<usize> {
-        for i in 0..num_strs.len() {
-            if x.contains(num_strs[i]) {
+        for i in 0..NUM_STRS.len() {
+            if x.contains(NUM_STRS[i]) {
                 return Some(i + 1);
             }
         }
