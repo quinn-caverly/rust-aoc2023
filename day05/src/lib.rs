@@ -91,7 +91,7 @@ pub mod part_a {
 
 pub mod part_b {
 
-    use crate::part_a::{move_through_map, Entry};
+    use crate::part_a::Entry;
 
     // switching to inclusive ranges for simplicity
     pub struct Mapper {

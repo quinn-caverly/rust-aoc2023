@@ -34,7 +34,7 @@ mod test_part_a {
     #[test]
     fn test_parse_input() {
         const SAMPLE_INP: &str = "seeds: 79 14 55 13\n\nseed-to-soil map:\n50 98 2\n52 50 48";
-        let (seeds, maps) = parse_input(SAMPLE_INP);
+        let (_, maps) = parse_input(SAMPLE_INP);
 
         let expected_map = vec![
             Entry {
@@ -169,8 +169,8 @@ mod test_part_b {
 
     #[test]
     fn test_traverse_map() {
-        let mut mapper = Mapper::new_by_params(1, 10, 5);
-        let mut input = Range { start: 0, stop: 7 };
+        let mapper = Mapper::new_by_params(1, 10, 5);
+        let input = Range { start: 0, stop: 7 };
 
         let mut expected_ranges = vec![
             Range { start: 0, stop: 0 },
