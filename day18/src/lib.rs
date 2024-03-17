@@ -1,5 +1,5 @@
 pub mod part_a {
-    // use a HashSet of coords i64 to build the initial loop
+    // use a HashSet of coords isize to build the initial loop
     // convert to a grid of usize with a buffer
     // use dfs or bfs from the corner to find all spots outside the loop
     // count the spots which were not reached, this is the area of the loop
@@ -18,7 +18,7 @@ pub mod part_a {
     #[derive(Debug, PartialEq)]
     pub struct Step {
         pub dir: Dir,
-        pub length: i64,
+        pub length: isize,
     }
 
     pub fn parse_input(input_str: &str) -> Vec<Step> {
@@ -39,16 +39,16 @@ pub mod part_a {
 
                 Step {
                     dir,
-                    length: num_str.parse::<i64>().unwrap(),
+                    length: num_str.parse::<isize>().unwrap(),
                 }
             })
             .collect()
     }
 
-    pub fn build_loop(steps: Vec<Step>) -> HashSet<(i64, i64)> {
+    pub fn build_loop(steps: Vec<Step>) -> HashSet<(isize, isize)> {
         let mut set = HashSet::new();
 
-        let mut cur_pos: (i64, i64) = (0, 0);
+        let mut cur_pos: (isize, isize) = (0, 0);
         set.insert(cur_pos);
 
         for step in steps {
@@ -67,7 +67,7 @@ pub mod part_a {
         set
     }
 
-    pub fn find_lowest_highest(set: &HashSet<(i64, i64)>) -> ((i64, i64), (i64, i64)) {
+    pub fn find_lowest_highest(set: &HashSet<(isize, isize)>) -> ((isize, isize), (isize, isize)) {
         let mut lowest_x = 0;
         let mut lowest_y = 0;
 
@@ -102,11 +102,11 @@ pub mod part_a {
     }
 
     pub fn build_usize_graph(
-        set: &HashSet<(i64, i64)>,
-        lowest_row: i64,
-        lowest_col: i64,
-        highest_row: i64,
-        highest_col: i64,
+        set: &HashSet<(isize, isize)>,
+        lowest_row: isize,
+        lowest_col: isize,
+        highest_row: isize,
+        highest_col: isize,
     ) -> Vec<Vec<Node>> {
         // becuase lowest_x, lowest_y will be negative or 0, add their inverse to
         // highest vals to get the top value, note this isnt the width/height but index
@@ -131,7 +131,7 @@ pub mod part_a {
             cur_row.push(Node::Emp);
 
             for col in 0..cols {
-                if set.contains(&((row as i64) + lowest_row, (col as i64) + lowest_col)) {
+                if set.contains(&((row as isize) + lowest_row, (col as isize) + lowest_col)) {
                     cur_row.push(Node::Dug);
                 } else {
                     cur_row.push(Node::Emp);
@@ -193,5 +193,83 @@ pub mod part_a {
 
         run_search(&mut graph);
         count_area(&graph)
+    }
+}
+
+pub mod part_b {
+    use crate::part_a::{
+        build_loop, build_usize_graph, count_area, find_lowest_highest, run_search, Dir, Step,
+    };
+
+    pub fn parse_input_b(input_str: &str) -> Vec<Step> {
+        input_str
+            .lines()
+            .map(|line| {
+                let mut portions = line.split(" ");
+                let mut hexa = portions.nth(2).unwrap();
+                hexa = hexa.strip_prefix("(#").unwrap().strip_suffix(")").unwrap();
+
+                let hexa_distance = &hexa[0..5];
+                let encoded_dir = hexa.chars().nth(5).unwrap();
+
+                let dir = match encoded_dir {
+                    '0' => Dir::Right,
+                    '1' => Dir::Down,
+                    '2' => Dir::Left,
+                    '3' => Dir::Up,
+                    _ => panic!(),
+                };
+
+                Step {
+                    length: isize::from_str_radix(hexa_distance, 16).unwrap(),
+                    dir,
+                }
+            })
+            .collect()
+    }
+
+    pub fn shoelace_formula(points: &Vec<(isize, isize)>) -> isize {
+        let len = points.len();
+
+        let (area, perimeter) =
+            points
+                .iter()
+                .enumerate()
+                .fold((0isize, 0isize), |(sum, perimeter), (i, p1)| {
+                    let l = (i + 1) % len;
+                    let p2 = points[l];
+
+                    let manhat_distance = (p1.0 - p2.0).abs() + (p1.1 - p2.1).abs();
+
+                    let new_perimeter = perimeter + manhat_distance;
+                    let new_area = sum + (p1.1 * p2.0) - (p1.0 * p2.1);
+
+                    (new_area, new_perimeter)
+                });
+
+        (area.abs() + perimeter) / 2 + 1
+    }
+
+    pub fn get_vertices_from_steps(steps: &Vec<Step>) -> Vec<(isize, isize)> {
+        // we make it back to the beginning so we don't need to add (0, 0)
+        let mut vertices = vec![];
+        let mut cur = (0, 0);
+
+        for step in steps {
+            cur = match step.dir {
+                Dir::Right => (cur.0, cur.1 + step.length),
+                Dir::Left => (cur.0, cur.1 - step.length),
+                Dir::Down => (cur.0 + step.length, cur.1),
+                Dir::Up => (cur.0 - step.length, cur.1),
+            };
+            vertices.push(cur);
+        }
+
+        vertices
+    }
+
+    pub fn solve_part_b(input_str: &str) -> isize {
+        let vertices = get_vertices_from_steps(&parse_input_b(input_str));
+        shoelace_formula(&vertices)
     }
 }

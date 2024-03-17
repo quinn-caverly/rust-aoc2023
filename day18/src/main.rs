@@ -1,8 +1,9 @@
-use day18::part_a::solve_part_a;
+use day18::{part_a::solve_part_a, part_b::solve_part_b};
 
 fn main() {
     let input_str = include_str!("input.txt");
     println!("part a: {}", solve_part_a(input_str));
+    println!("part b: {}", solve_part_b(input_str));
 }
 
 #[cfg(test)]
@@ -71,7 +72,30 @@ mod test_part_a {
     #[test]
     fn test_solve_part_a() {
         let input_str = "R 6 (#70c710)\nD 5 (#0dc571)\nL 2 (#5713f0)\nD 2 (#d2c081)\nR 2 (#59c680)\nD 2 (#411b91)\nL 5 (#8ceee2)\nU 2 (#caa173)\nL 1 (#1b58a2)\nU 2 (#caa171)\nR 2 (#7807d2)\nU 3 (#a77fa3)\nL 2 (#015232)\nU 2 (#7a21e3)";
-
         assert_eq!(solve_part_a(input_str), 62);
+    }
+}
+
+#[cfg(test)]
+mod test_part_b {
+    use day18::part_b::{get_vertices_from_steps, parse_input_b, shoelace_formula, solve_part_b};
+
+    #[test]
+    fn test_get_vertices_from_steps() {
+        let input_str = "R 6 (#70c710)\nD 5 (#0dc571)\nL 2 (#5713f0)\nD 2 (#d2c081)\nR 2 (#59c680)\nD 2 (#411b91)\nL 5 (#8ceee2)\nU 2 (#caa173)\nL 1 (#1b58a2)\nU 2 (#caa171)\nR 2 (#7807d2)\nU 3 (#a77fa3)\nL 2 (#015232)\nU 2 (#7a21e3)";
+        let vertices = get_vertices_from_steps(&parse_input_b(input_str));
+
+        let first = (0, 461937);
+        let second = (56407, 461937);
+
+        assert_eq!(vertices.get(0).unwrap(), &first);
+        assert_eq!(vertices.get(1).unwrap(), &second);
+    }
+
+    #[test]
+    fn test_solve_part_b() {
+        let input_str = "R 6 (#70c710)\nD 5 (#0dc571)\nL 2 (#5713f0)\nD 2 (#d2c081)\nR 2 (#59c680)\nD 2 (#411b91)\nL 5 (#8ceee2)\nU 2 (#caa173)\nL 1 (#1b58a2)\nU 2 (#caa171)\nR 2 (#7807d2)\nU 3 (#a77fa3)\nL 2 (#015232)\nU 2 (#7a21e3)";
+
+        assert_eq!(solve_part_b(input_str), 952408144115);
     }
 }
